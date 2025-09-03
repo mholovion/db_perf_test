@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  questdb:
+    image: questdb/questdb:latest
+    container_name: questdb_test
+    ports:
+    - 8812:8812
+    - 9002:9000
+    volumes:
+    - questdb_data:/var/lib/questdb
+    environment:
+    - QDB_PG_ENABLED=true
+    - QDB_PG_USER=admin
+    - QDB_PG_PASSWORD=quest
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -f http://localhost:9000/ || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse_test
+    ports:
+    - 8123:8123
+    - 9000:9000
+    volumes:
+    - clickhouse_data:/var/lib/clickhouse
+    environment:
+      CLICKHOUSE_DB: antiabuse
+      CLICKHOUSE_USER: test
+      CLICKHOUSE_PASSWORD: test123
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - --no-verbose
+      - --tries=1
+      - --spider
+      - http://localhost:8123/ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+networks:
+  antiabuse_network:
+    driver: bridge
+volumes:
+  questdb_data: null
+  clickhouse_data: null
+  timescaledb_data: null
+  influxdb_data: null

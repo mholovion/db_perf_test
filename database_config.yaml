@@ -1,0 +1,68 @@
+# Centralized Database Configuration for AntiAbuse System Performance Tests
+# Single source of truth for all database connection settings
+
+databases:
+  questdb:
+    image: questdb/questdb:latest
+    container_name: questdb_test
+    ports:
+      tcp: 8812      # PostgreSQL wire protocol
+      http: 9002     # HTTP REST API and Web Console
+    docker_ports:
+      - "8812:8812"
+      - "9002:9000"
+    credentials:
+      user: admin
+      password: quest
+      database: qdb
+    environment:
+      - QDB_PG_ENABLED=true
+      - QDB_PG_USER=admin
+      - QDB_PG_PASSWORD=quest
+    volumes:
+      - questdb_data:/var/lib/questdb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/ || exit 1"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse_test
+    ports:
+      tcp: 9000      # Native TCP protocol
+      http: 8123     # HTTP interface
+    docker_ports:
+      - "8123:8123"
+      - "9000:9000"
+    credentials:
+      user: test
+      password: test123
+      database: antiabuse
+    environment:
+      CLICKHOUSE_DB: antiabuse
+      CLICKHOUSE_USER: test
+      CLICKHOUSE_PASSWORD: test123
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+# Docker configuration
+docker:
+  network_name: antiabuse_network
+  volumes:
+    - questdb_data
+    - clickhouse_data
+
+# Environment detection
+environment:
+  docker_env_indicators:
+    - /.dockerenv
+  docker_env_var: DOCKER_CONTAINER

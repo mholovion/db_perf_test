@@ -1,0 +1,26 @@
+# Log files
+logs/*.log
+logs/*.txt
+
+# Test result files  
+results/*.json
+results/*.csv
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Generated docker-compose
+docker-compose.generated.yml
