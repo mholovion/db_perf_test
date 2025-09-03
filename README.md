@@ -1,6 +1,6 @@
 # Anti-Abuse Database Performance Test Suite
 
-Database performance testing framework without ML or complex business logic.
+Database performance testing framework.
 
 ## How to Run Tests
 
@@ -90,18 +90,7 @@ async def test_case_11_your_test_name(self, db_name: str) -> Dict[str, Any]:
         return {**test_info, 'success': False, 'error': str(e)}
 ```
 
-### 2. Add test to the TEST_CASES list in `all_tests.py`:
-
-Find the `TEST_CASES` list and add your test:
-
-```python
-TEST_CASES = [
-    # ... existing tests ...
-    11,  # Add your test ID here
-]
-```
-
-### 3. Update CSV exporter metrics (if needed):
+### 2. Update CSV exporter metrics (if needed):
 
 If your test uses a new primary metric, add it to `csv_exporter.py` in the `metric_mappings` dictionary:
 
@@ -109,7 +98,7 @@ If your test uses a new primary metric, add it to `csv_exporter.py` in the `metr
 'your_metric_name': {'unit': ' units', 'higher_better': True, 'threshold': 100, 'precision': 2},
 ```
 
-### 4. Update the priority metrics list:
+### 3. Update the priority metrics list:
 
 Add your metric to the `priority_metrics` list in `csv_exporter.py` to ensure proper CSV output.
 
@@ -235,10 +224,14 @@ your_database_service = """
 
 ### 4. Register database in test framework:
 
-Update the `DATABASES` list in `test_executor.py`:
+Update the `self.databases` list in `test_executor.py`:
 
 ```python
-DATABASES = ['QuestDB', 'ClickHouse', 'YourDatabase']
+self.databases = {
+    'QuestDB': QuestDBInterface(),
+    'ClickHouse': ClickHouseInterface(),
+    'YourDatabase': YourDatabaseInterface()
+}
 ```
 
 ### 5. Add initialization in `all_tests.py`:
